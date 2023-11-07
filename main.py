@@ -22,19 +22,23 @@ def main():
     while True:  # main game loop
         start = time()
         rot, last_mouse = rotation(rot, last_mouse)
+
         plt.hlines(-0.5, 0, 60, colors='k', lw=165, alpha=np.sin((rot + np.pi / 2) / 2) ** 2 / 2)
         plt.hlines(0.5, 0, 60, colors='k', lw=165, alpha=np.sin((rot - np.pi / 2) / 2) ** 2 / 2)
+
+        # show gradient background
         plt.scatter([30] * 150, -bg, c=-bg, s=200000, marker='_', cmap='Greys')
         plt.scatter([30] * 150, bg, c=bg, s=200000, marker='_', cmap='Blues')
+
         tx, ty, tc = ([], [], [])
         for i in range(60):  # vision loop
-            rot_i = rot + np.deg2rad(i - 30)
+            rot_i = rot + np.deg2rad(i - 30)  # fov
             x, y = (posx, posy)
             sin, cos = (0.04 * np.sin(rot_i), 0.04 * np.cos(rot_i))
             n, half = 0, None
             c, h, x, y, n, half, tx, ty, tc = caster(x, y, i, ex, ey, maph, mapc, sin, cos, n, half, tx, ty, tc)
 
-            plt.vlines(i, -h, h, lw=8, colors=c)
+            plt.vlines(i, -h, h, lw=8, colors=c)  # draw a block line
             if half is not None:
                 plt.vlines(i, -half[0], 0, lw=8, colors=half[1])
 
@@ -43,7 +47,7 @@ def main():
         plt.tight_layout()
         plt.axis([0, 60, -1, 1])
         plt.scatter(tx, ty, c=tc, zorder=2, alpha=0.5, marker='s')  # draw ts on the floor
-        plt.text(57, 0.9, str(round(1 / (time() - start), 1)), c='y')
+        plt.text(57, 0.9, str(round(1 / (time() - start), 1)), c='y')  # show fps
         plt.draw()
         plt.pause(0.1)
         plt.clf()
@@ -58,7 +62,7 @@ def main():
 
 def maze_generator(x, y, size):
     mapc = np.random.uniform(0, 1, (size, size, 3))  # generating map colors
-    mapr = np.random.choice([0, 0, 0, 0, 1], (size, size))
+    mapr = np.random.choice([0, 0, 0, 0, 1], (size, size))  #
     maph = np.random.choice([0, 0, 0, 0, .5, 1], (size, size))  # generating block heights
     maph[0, :], maph[size - 1, :], maph[:, 0], maph[:, size - 1] = (1, 1, 1, 1)  # creating maze border
 
@@ -129,33 +133,25 @@ def caster(x, y, i, ex, ey, maph, mapc, sin, cos, n, half, tx, ty, tc):
     while True:  # ray loop
         xx, yy = (x, y)
         x, y = (x + cos, y + sin)
-        n = n + 1
-        if half is None and int(x * 2) % 2 == int(
-                y * 2) % 2:  # (abs(int(3*xx)-int(3*x)) > 0 or abs(int(3*yy)-int(3*y))>0):
+        n = n + 1  # ray's path
+        if half is None and int(x * 2) % 2 == int(y * 2) % 2:
             tx.append(i)
-            ty.append(-1 / (0.04 * n * np.cos(np.deg2rad(i - 30))))
+            ty.append(-1 / (0.04 * n))
             if int(x) == ex and int(y) == ey:
                 tc.append('b')
             else:
                 tc.append('k')
         if maph[int(x)][int(y)] == 1 or (maph[int(x)][int(y)] == 0.5 and half is None):
-            h, c = shader(n, maph, mapc, sin, cos, x, y, i)
+            # h - height of the vline
+            # c - color
+            h = np.clip((1 / (0.04 * n)), 0, 1)
+            c = np.asarray(mapc[int(x)][int(y)])
             if maph[int(x)][int(y)] == 0.5 and half is None:
                 half = [h, c, n]
             else:
                 break
 
     return c, h, x, y, n, half, tx, ty, tc
-
-
-def shader(n, maph, mapc, sin, cos, x, y, i):
-    h = np.clip(1 / (0.04 * n * np.cos(np.deg2rad(i - 30))), 0, 1)
-    c = np.asarray(mapc[int(x)][int(y)]) #* (0.4 + 0.6 * h)
-    if maph[int(x + cos)][int(y - sin)] != 0:
-        c = 0.85 * c
-        if maph[int(x - cos)][int(y + sin)] != 0 and sin > 0:
-            c = 0.7 * c
-    return h, c
 
 
 if __name__ == '__main__':
