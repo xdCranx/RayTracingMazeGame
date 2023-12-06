@@ -5,9 +5,9 @@ from numba import njit
 
 
 def main():
-    global key;
+    global key
     key = None  # register keypresses
-    listener = keyboard.Listener(on_press=on_press);
+    listener = keyboard.Listener(on_press=on_press)
     listener.start()
     size = 15  # size of the map
     posx, posy, posz = (1, np.random.randint(1, size - 1), 0.5)  # player pos
@@ -21,7 +21,7 @@ def main():
 
     ax = plt.figure().gca()
     img = ax.imshow(np.random.rand(height, width, 3))
-    plt.axis('off');
+    plt.axis('off')
     plt.tight_layout()
 
     while 1:  # main game loop
@@ -42,8 +42,8 @@ def main():
 
         pixels = np.reshape(pixels, (height, width, 3))
         pixels = np.asarray(pixels) / np.sqrt(np.max(pixels))
-        img.set_array(pixels);
-        plt.draw();
+        img.set_array(pixels)
+        plt.draw()
         plt.pause(0.0001)
 
         posx, posy, rot, rot_v, keyout = movement(posx, posy, rot, rot_v, maph)
