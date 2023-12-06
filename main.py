@@ -30,8 +30,8 @@ def png_to_matrix(file_path, target_size=(100,100)):
         return None
 
 
-sbox_test = png_to_matrix("./creepa.png")
-wall_texture = png_to_matrix("./textures/Brick1.bmp")
+sbox_test = png_to_matrix("./sky.jpg")
+wall_texture = png_to_matrix("./textures/Minecraft-Bricks.jpg")
 # print(sbox_test.shape())
 def main():
     global key
@@ -66,6 +66,7 @@ def main():
                 if z < 1:
                     c = shadow_ray(x, y, z, lx, ly, lz, maph, c, inc, dtol)
                     if mapr[int(x)][int(y)] != 0 and z > 0:
+                        c = np.asarray([.1, .1, .1])
                         c = reflection(x, y, z, cos, sin, sinz, mapc, lx, ly, lz, maph, exitx, exity, c, posz, inc,
                                        mapr, recur=False)
                 pixels.append(c)

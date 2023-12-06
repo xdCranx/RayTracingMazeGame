@@ -15,7 +15,7 @@ def main():
     lx, ly, lz = (size / 2 - 0.5, size / 2 - 0.5, 1)  # light source
     mapc, maph, mapr, exitx, exity = maze_generator(posx, posy, size)  # map
 
-    mod = 1.5  # resolution modifier
+    mod = 5  # resolution modifier
     inc = 0.05 / mod  # ray increment
     height, width = (int(45 * mod), int(60 * mod))  # resolution
 
